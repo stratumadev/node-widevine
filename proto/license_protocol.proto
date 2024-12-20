@@ -1,8 +1,9 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package license_protocol;
 
 enum LicenseType {
+  LICENSETYPE_UNVERIFIED = 0;
   STREAMING = 1;
   OFFLINE = 2;
   // License type decision is left to provider.
@@ -39,14 +40,14 @@ message LicenseIdentification {
 message License {
   message Policy {
     // Indicates that playback of the content is allowed.
-    optional bool can_play = 1 [default = false];
+    optional bool can_play = 1;
 
     // Indicates that the license may be persisted to non-volatile
     // storage for offline use.
-    optional bool can_persist = 2 [default = false];
+    optional bool can_persist = 2;
 
     // Indicates that renewal of this license is allowed.
-    optional bool can_renew = 3 [default = false];
+    optional bool can_renew = 3;
 
     // For the |*duration*| fields, playback must halt when
     // license_start_time (seconds since the epoch (UTC)) +
@@ -54,20 +55,20 @@ message License {
     // indicates that there is no limit to the duration.
 
     // Indicates the rental window.
-    optional int64 rental_duration_seconds = 4 [default = 0];
+    optional int64 rental_duration_seconds = 4;
 
     // Indicates the viewing window, once playback has begun.
-    optional int64 playback_duration_seconds = 5 [default = 0];
+    optional int64 playback_duration_seconds = 5;
 
     // Indicates the time window for this specific license.
-    optional int64 license_duration_seconds = 6 [default = 0];
+    optional int64 license_duration_seconds = 6;
 
     // The |renewal*| fields only apply if |can_renew| is true.
 
     // The window of time, in which playback is allowed to continue while
     // renewal is attempted, yet unsuccessful due to backend problems with
     // the license server.
-    optional int64 renewal_recovery_duration_seconds = 7 [default = 0];
+    optional int64 renewal_recovery_duration_seconds = 7;
 
     // All renewal requests for this license shall be directed to the
     // specified URL.
@@ -75,38 +76,39 @@ message License {
 
     // How many seconds after license_start_time, before renewal is first
     // attempted.
-    optional int64 renewal_delay_seconds = 9 [default = 0];
+    optional int64 renewal_delay_seconds = 9;
 
     // Specifies the delay in seconds between subsequent license
     // renewal requests, in case of failure.
-    optional int64 renewal_retry_interval_seconds = 10 [default = 0];
+    optional int64 renewal_retry_interval_seconds = 10;
 
     // Indicates that the license shall be sent for renewal when usage is
     // started.
-    optional bool renew_with_usage = 11 [default = false];
+    optional bool renew_with_usage = 11;
 
     // Indicates to client that license renewal and release requests ought to
     // include ClientIdentification (client_id).
-    optional bool always_include_client_id = 12 [default = false];
+    optional bool always_include_client_id = 12;
 
     // Duration of grace period before playback_duration_seconds (short window)
     // goes into effect. Optional.
-    optional int64 play_start_grace_period_seconds = 13 [default = 0];
+    optional int64 play_start_grace_period_seconds = 13;
 
     // Enables "soft enforcement" of playback_duration_seconds, letting the user
     // finish playback even if short window expires. Optional.
-    optional bool soft_enforce_playback_duration = 14 [default = false];
+    optional bool soft_enforce_playback_duration = 14;
 
     // Enables "soft enforcement" of rental_duration_seconds. Initial playback
     // must always start before rental duration expires.  In order to allow
     // subsequent playbacks to start after the rental duration expires,
     // soft_enforce_playback_duration must be true. Otherwise, subsequent
     // playbacks will not be allowed once rental duration expires. Optional.
-    optional bool soft_enforce_rental_duration = 15 [default = true];
+    optional bool soft_enforce_rental_duration = 15;
   }
 
   message KeyContainer {
     enum KeyType {
+      KEYTYPE_UNVERIFIED = 0;
       SIGNING = 1;           // Exactly one key of this type must appear.
       CONTENT = 2;           // Content key.
       KEY_CONTROL = 3;       // Key control block for license renewals. No key.
@@ -118,6 +120,9 @@ message License {
     // The SecurityLevel enumeration allows the server to communicate the level
     // of robustness required by the client, in order to use the key.
     enum SecurityLevel {
+
+      SECURITYLEVEL_UNVERIFIED = 0;
+
       // Software-based whitebox crypto is required.
       SW_SECURE_CRYPTO = 1;
 
@@ -160,16 +165,16 @@ message License {
         HDCP_V2_3 = 5;
         HDCP_NO_DIGITAL_OUTPUT = 0xff;
       }
-      optional HDCP hdcp = 1 [default = HDCP_NONE];
+      optional HDCP hdcp = 1;
 
       // Indicate the CGMS setting to be inserted on analog output.
       enum CGMS {
-        CGMS_NONE = 42;
         COPY_FREE = 0;
+        CGMS_NONE = 42;
         COPY_ONCE = 2;
         COPY_NEVER = 3;
       }
-      optional CGMS cgms_flags = 2 [default = CGMS_NONE];
+      optional CGMS cgms_flags = 2;
 
       enum HdcpSrmRule {
         HDCP_SRM_RULE_NONE = 0;
@@ -181,11 +186,11 @@ message License {
         // allow use of the key anyway.
         CURRENT_SRM = 1;
       }
-      optional HdcpSrmRule hdcp_srm_rule = 3 [default = HDCP_SRM_RULE_NONE];
+      optional HdcpSrmRule hdcp_srm_rule = 3;
       // Optional requirement to indicate analog output is not allowed.
-      optional bool disable_analog_output = 4 [default = false];
+      optional bool disable_analog_output = 4;
       // Optional requirement to indicate digital output is not allowed.
-      optional bool disable_digital_output = 5 [default = false];
+      optional bool disable_digital_output = 5;
     }
 
     message VideoResolutionConstraint {
@@ -200,17 +205,17 @@ message License {
     message OperatorSessionKeyPermissions {
       // Permissions/key usage flags for operator service keys
       // (type = OPERATOR_SESSION).
-      optional bool allow_encrypt = 1 [default = false];
-      optional bool allow_decrypt = 2 [default = false];
-      optional bool allow_sign = 3 [default = false];
-      optional bool allow_signature_verify = 4 [default = false];
+      optional bool allow_encrypt = 1;
+      optional bool allow_decrypt = 2;
+      optional bool allow_sign = 3;
+      optional bool allow_signature_verify = 4;
     }
 
     optional bytes id = 1;
     optional bytes iv = 2;
     optional bytes key = 3;
     optional KeyType type = 4;
-    optional SecurityLevel level = 5 [default = SW_SECURE_CRYPTO];
+    optional SecurityLevel level = 5;
     optional OutputProtection required_protection = 6;
     // NOTE: Use of requested_protection is not recommended as it is only
     // supported on a small number of platforms.
@@ -227,7 +232,7 @@ message License {
     // Optional flag to indicate the key must only be used if the client
     // supports anti rollback of the user table.  Content provider can query the
     // client capabilities to determine if the client support this feature.
-    optional bool anti_rollback_usage_table = 11 [default = false];
+    optional bool anti_rollback_usage_table = 11;
     // Optional not limited to commonly known track types such as SD, HD.
     // It can be some provider defined label to identify the track.
     optional string track_label = 12;
@@ -240,7 +245,7 @@ message License {
   // LicenseRequest.request_time.  If this time is not set in the request,
   // the local time at the license service is used in this field.
   optional int64 license_start_time = 4;
-  optional bool remote_attestation_verified = 5 [default = false];
+  optional bool remote_attestation_verified = 5;
   // Client token generated by the content provider. Optional.
   optional bytes provider_client_token = 6;
   // 4cc code specifying the CENC protection scheme as defined in the CENC 3.0
@@ -258,13 +263,13 @@ message License {
   optional bytes srm_update = 9;
   // Indicates the status of any type of platform verification performed by the
   // server.
-  optional PlatformVerificationStatus platform_verification_status = 10
-      [default = PLATFORM_NO_VERIFICATION];
+  optional PlatformVerificationStatus platform_verification_status = 10;
   // IDs of the groups for which keys are delivered in this license, if any.
   repeated bytes group_ids = 11;
 }
 
 enum ProtocolVersion {
+  VERSION_UNVERIFIED = 0;
   VERSION_2_0 = 20;
   VERSION_2_1 = 21;
   VERSION_2_2 = 22;
@@ -293,11 +298,12 @@ message LicenseRequest {
 
     message InitData {
       enum InitDataType {
+        INITDATATYPE_UNVERIFIED = 0;
         CENC = 1;
         WEBM = 2;
       }
 
-      optional InitDataType init_data_type = 1 [default = CENC];
+      optional InitDataType init_data_type = 1;
       optional bytes init_data = 2;
       optional LicenseType license_type = 3;
       optional bytes request_id = 4;
@@ -313,6 +319,7 @@ message LicenseRequest {
   }
 
   enum RequestType {
+    REQUESTTYPE_UNVERIFIED = 0;
     NEW = 1;
     RENEWAL = 2;
     RELEASE = 3;
@@ -329,7 +336,7 @@ message LicenseRequest {
   optional int64 request_time = 4;
   // Old-style decimal-encoded string key control nonce.
   optional bytes key_control_nonce_deprecated = 5;
-  optional ProtocolVersion protocol_version = 6 [default = VERSION_2_0];
+  optional ProtocolVersion protocol_version = 6;
   // New-style uint32 key control nonce, please use instead of
   // key_control_nonce_deprecated.
   optional uint32 key_control_nonce = 7;
@@ -339,6 +346,7 @@ message LicenseRequest {
 
 message MetricData {
   enum MetricType {
+    METRICTYPE_UNVERIFIED = 0;
     // The time spent in the 'stage', specified in microseconds.
     LATENCY = 1;
     // The UNIX epoch timestamp at which the 'stage' was first accessed in
@@ -350,7 +358,7 @@ message MetricData {
     optional MetricType type = 1;
     // The value associated with 'type'.  For example if type == LATENCY, the
     // value would be the time in microseconds spent in this 'stage'.
-    optional int64 value = 2 [default = 0];
+    optional int64 value = 2;
   }
 
   // 'stage' that is currently processing the SignedMessage.  Required.
@@ -370,6 +378,7 @@ message VersionInfo {
 
 message SignedMessage {
   enum MessageType {
+    MESSAGETYPE_UNVERIFIED = 0;
     LICENSE_REQUEST = 1;
     LICENSE = 2;
     ERROR_RESPONSE = 3;
@@ -412,7 +421,7 @@ message SignedMessage {
   optional VersionInfo service_version_info = 7;
   // Optional field that contains the algorithm type used to generate the
   // session_key and signature in a LICENSE message.
-  optional SessionKeyType session_key_type = 8 [default = WRAPPED_AES_KEY];
+  optional SessionKeyType session_key_type = 8;
   // The core message is the simple serialization of fields used by OEMCrypto.
   // This field was introduced in OEMCrypto API v16.
   optional bytes oemcrypto_core_message = 9;
@@ -469,24 +478,23 @@ message ClientIdentification {
       ANALOG_OUTPUT_SUPPORTS_CGMS_A = 3;
     }
 
-    optional bool client_token = 1 [default = false];
-    optional bool session_token = 2 [default = false];
-    optional bool video_resolution_constraints = 3 [default = false];
-    optional HdcpVersion max_hdcp_version = 4 [default = HDCP_NONE];
+    optional bool client_token = 1;
+    optional bool session_token = 2;
+    optional bool video_resolution_constraints = 3;
+    optional HdcpVersion max_hdcp_version = 4;
     optional uint32 oem_crypto_api_version = 5;
     // Client has hardware support for protecting the usage table, such as
     // storing the generation number in secure memory.  For Details, see:
     // Widevine Modular DRM Security Integration Guide for CENC
-    optional bool anti_rollback_usage_table = 6 [default = false];
+    optional bool anti_rollback_usage_table = 6;
     // The client shall report |srm_version| if available.
     optional uint32 srm_version = 7;
     // A device may have SRM data, and report a version, but may not be capable
     // of updating SRM data.
-    optional bool can_update_srm = 8 [default = false];
+    optional bool can_update_srm = 8;
     repeated CertificateKeyType supported_certificate_key_type = 9;
-    optional AnalogOutputCapabilities analog_output_capabilities = 10
-        [default = ANALOG_OUTPUT_UNKNOWN];
-    optional bool can_disable_analog_output = 11 [default = false];
+    optional AnalogOutputCapabilities analog_output_capabilities = 10;
+    optional bool can_disable_analog_output = 11;
     // Clients can indicate a performance level supported by OEMCrypto.
     // This will allow applications and providers to choose an appropriate
     // quality of content to serve. Currently defined tiers are
@@ -494,16 +502,16 @@ message ClientIdentification {
     // the resource rating is unavailable or reporting erroneous values
     // for that device. For details see,
     // Widevine Modular DRM Security Integration Guide for CENC
-    optional uint32 resource_rating_tier = 12 [default = 0];
+    optional uint32 resource_rating_tier = 12;
   }
 
   message ClientCredentials {
-    optional TokenType type = 1 [default = KEYBOX];
+    optional TokenType type = 1;
     optional bytes token = 2;
   }
 
   // Type of factory-provisioned device root of trust. Optional.
-  optional TokenType type = 1 [default = KEYBOX];
+  optional TokenType type = 1;
   // Factory-provisioned device root of trust. Required.
   optional bytes token = 2;
   // Optional client information name/value pairs.
@@ -572,7 +580,7 @@ message DrmCertificate {
     // The |algorithm| is used for both to determine the if the certificate is
     // ECC or RSA. The |algorithm| also specifies the parameters that were used
     // to create |public_key| and are used to create an ephemeral session key.
-    optional Algorithm algorithm = 2 [default = RSA];
+    optional Algorithm algorithm = 2;
   }
 
   // Type of certificate. Required.
@@ -608,7 +616,7 @@ message DrmCertificate {
   // The |algorithm| is used for both to determine the if the certificate is ECC
   // or RSA. The |algorithm| also specifies the parameters that were used to
   // create |public_key| and are used to create an ephemeral session key.
-  optional Algorithm algorithm = 9 [default = RSA];
+  optional Algorithm algorithm = 9;
   // Optional. May be present in DEVICE certificate types. This is the root
   // of trust identifier that holds an encrypted value that identifies the
   // keybox or other root of trust that was used to provision a DEVICE drm
@@ -650,7 +658,7 @@ message WidevinePsshData {
     // IV used for wrapping |key|. Required.
     optional bytes iv = 4;
     // Size of entitlement key used for wrapping |key|.
-    optional uint32 entitlement_key_size_bytes = 5 [default = 32];
+    optional uint32 entitlement_key_size_bytes = 5;
   }
 
   // Entitlement or content key IDs. Can onnly present in SINGLE or ENTITLEMENT
@@ -687,7 +695,7 @@ message WidevinePsshData {
   optional uint32 crypto_period_seconds = 10;
 
   // Type of PSSH. Required if not SINGLE.
-  optional Type type = 11 [default = SINGLE];
+  optional Type type = 11;
 
   // Key sequence for Widevine-managed keys. Optional.
   optional uint32 key_sequence = 12;
